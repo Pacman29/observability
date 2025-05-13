@@ -51,7 +51,7 @@ func (m *metrics) WithTag(key string, value string) context.Context {
 	panic("implement me")
 }
 
-func (m *metrics) WithTags(m map[string]string) context.Context {
+func (m *metrics) WithTags(tags map[string]string) context.Context {
 	//TODO implement me
 	panic("implement me")
 }
