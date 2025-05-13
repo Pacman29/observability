@@ -6,9 +6,10 @@ import (
 	"iter"
 	"maps"
 	"net/http"
-	"observability/internal/pool"
 	"slices"
 	"time"
+
+	"github.com/Pacman29/observability/internal/pool"
 )
 
 type logger struct {

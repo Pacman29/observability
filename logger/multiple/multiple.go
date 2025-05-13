@@ -7,7 +7,7 @@ import (
 
 	"go.uber.org/multierr"
 
-	"observability/logger"
+	"github.com/Pacman29/observability/logger"
 )
 
 type drivers []logger.Driver

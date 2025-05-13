@@ -8,8 +8,8 @@ import (
 
 	"moul.io/http2curl"
 
-	"observability/internal/pool"
-	"observability/logger"
+	"github.com/Pacman29/observability/internal/pool"
+	"github.com/Pacman29/observability/logger"
 )
 
 type driver struct {

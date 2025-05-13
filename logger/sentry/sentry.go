@@ -9,8 +9,8 @@ import (
 
 	"github.com/getsentry/sentry-go"
 
-	"observability/internal/pool"
-	"observability/logger"
+	"github.com/Pacman29/observability/internal/pool"
+	"github.com/Pacman29/observability/logger"
 )
 
 type driver struct {
