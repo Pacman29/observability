@@ -1,4 +1,4 @@
-module observability
+module github.com/Pacman29/observability
 
 go 1.24
 
