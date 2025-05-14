@@ -18,8 +18,8 @@ type Option func(*options)
 
 func newOptions() *options {
 	return &options{
-		defaultFields: nil,
-		defaultTags:   nil,
+		defaultFields: map[string]any{},
+		defaultTags:   map[string]string{},
 		ctxReaders:    nil,
 	}
 }
