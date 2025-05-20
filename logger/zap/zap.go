@@ -30,37 +30,37 @@ func NewZapDriver(l *zap.SugaredLogger, opts ...Option) logger.Driver {
 	}
 }
 
-func (d *driver) writeLog(ctx context.Context, writter func(args ...interface{}), h logger.EventHandler) {
+func (d *driver) writeLog(ctx context.Context, writter func(msg string, kvs ...interface{}), h logger.EventHandler) {
 	args := d.pool.Get()
 	defer func() {
 		d.pool.Save(args)
 	}()
 	args = d.toZapArgs(ctx, args, h)
-	writter(args...)
+	writter(h.Msg(), args...)
 }
 
 func (d *driver) Trace(ctx context.Context, h logger.EventHandler) {
-	d.writeLog(ctx, d.l.Debug, h)
+	d.writeLog(ctx, d.l.Debugw, h)
 }
 
 func (d *driver) Debug(ctx context.Context, h logger.EventHandler) {
-	d.writeLog(ctx, d.l.Debug, h)
+	d.writeLog(ctx, d.l.Debugw, h)
 }
 
 func (d *driver) Warning(ctx context.Context, h logger.EventHandler) {
-	d.writeLog(ctx, d.l.Warn, h)
+	d.writeLog(ctx, d.l.Warnw, h)
 }
 
 func (d *driver) Info(ctx context.Context, h logger.EventHandler) {
-	d.writeLog(ctx, d.l.Info, h)
+	d.writeLog(ctx, d.l.Infow, h)
 }
 
 func (d *driver) Error(ctx context.Context, h logger.EventHandler) {
-	d.writeLog(ctx, d.l.Error, h)
+	d.writeLog(ctx, d.l.Errorw, h)
 }
 
 func (d *driver) Fatal(ctx context.Context, h logger.EventHandler) {
-	d.writeLog(ctx, d.l.Fatal, h)
+	d.writeLog(ctx, d.l.Fatalw, h)
 }
 
 func (d *driver) Flush(timeout time.Duration) error {
@@ -68,7 +68,6 @@ func (d *driver) Flush(timeout time.Duration) error {
 }
 
 func (d *driver) toZapArgs(ctx context.Context, args []any, h logger.EventHandler) []any {
-	args = append(args, h.Msg())
 	for k, v := range h.Tags() {
 		args = append(args, zap.String(k, v))
 	}
