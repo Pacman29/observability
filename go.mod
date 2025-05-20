@@ -1,6 +1,6 @@
 module github.com/Pacman29/observability
 
-go 1.24
+go 1.23
 
 require (
 	github.com/getsentry/sentry-go v0.32.0
