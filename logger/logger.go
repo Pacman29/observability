@@ -184,6 +184,20 @@ func (l *logger) Fatal(ctx context.Context, msg string, args ...any) {
 	l.d.Fatal(ctx, h)
 }
 
+func (l *logger) Recover(ctx context.Context) {
+	err := recover()
+	if err == nil {
+		return
+	}
+
+	ctx = defaultCtx(ctx)
+	h, handlerClose := l.newHandler("")
+	defer handlerClose()
+	l.withArgs(ctx, h)
+
+	l.d.Recover(err, ctx, h)
+}
+
 func (l *logger) WithField(ctx context.Context, k string, v any) context.Context {
 	ctx = defaultCtx(ctx)
 	return addFieldToCtx(ctx, k, v)

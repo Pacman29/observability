@@ -36,7 +36,7 @@ func NewSentryDriver(client *sentry.Client, opts ...Option) logger.Driver {
 	}
 }
 
-func (d *driver) captureException(ctx context.Context, h logger.EventHandler) {
+func (d *driver) newScopeFromCtx(ctx context.Context, h logger.EventHandler) *sentry.Scope {
 	scope := sentry.NewScope()
 
 	if d.options.sentryUserResolver != nil {
@@ -84,7 +84,7 @@ func (d *driver) captureException(ctx context.Context, h logger.EventHandler) {
 	fieldsMap["__additional_args"] = args
 
 	scope.SetExtras(fieldsMap)
-	d.c.CaptureException(h.Err(), nil, scope)
+	return scope
 }
 
 func (d *driver) Trace(ctx context.Context, h logger.EventHandler) {}
@@ -96,11 +96,11 @@ func (d *driver) Warning(ctx context.Context, h logger.EventHandler) {}
 func (d *driver) Info(ctx context.Context, h logger.EventHandler) {}
 
 func (d *driver) Error(ctx context.Context, h logger.EventHandler) {
-	d.captureException(ctx, h)
+	d.c.CaptureException(h.Err(), nil, d.newScopeFromCtx(ctx, h))
 }
 
 func (d *driver) Fatal(ctx context.Context, h logger.EventHandler) {
-	d.captureException(ctx, h)
+	d.c.CaptureException(h.Err(), nil, d.newScopeFromCtx(ctx, h))
 	os.Exit(1)
 }
 
@@ -109,4 +109,11 @@ func (d *driver) Flush(timeout time.Duration) error {
 		return errors.New("can't flush data")
 	}
 	return nil
+}
+
+func (d *driver) Recover(err any, ctx context.Context, h logger.EventHandler) {
+	d.c.Recover(err, nil, d.newScopeFromCtx(ctx, h))
+	go func() {
+		d.c.Flush(time.Second * 5)
+	}()
 }

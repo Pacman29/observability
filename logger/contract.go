@@ -15,6 +15,7 @@ type Driver interface {
 	Error(ctx context.Context, h EventHandler)
 	Fatal(ctx context.Context, h EventHandler)
 	Flush(timeout time.Duration) error
+	Recover(err any, ctx context.Context, h EventHandler)
 }
 
 type CtxReader func(ctx context.Context) []any
@@ -26,6 +27,7 @@ type Logger interface {
 	Warning(ctx context.Context, msg string, args ...any)
 	Error(ctx context.Context, msg string, args ...any)
 	Fatal(ctx context.Context, msg string, args ...any)
+	Recover(ctx context.Context)
 	WithField(ctx context.Context, k string, v any) context.Context
 	WithFields(ctx context.Context, fields map[string]any) context.Context
 	WithError(ctx context.Context, err error) context.Context

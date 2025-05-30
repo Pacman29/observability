@@ -2,8 +2,10 @@ package slog
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
+	"runtime/debug"
 	"time"
 
 	"moul.io/http2curl"
@@ -59,6 +61,16 @@ func (d *driver) Info(ctx context.Context, h logger.EventHandler) {
 
 func (d *driver) Error(ctx context.Context, h logger.EventHandler) {
 	d.writeLog(ctx, slog.LevelError, h)
+}
+
+func (d *driver) Recover(err any, ctx context.Context, h logger.EventHandler) {
+	args := d.pool.Get()
+	defer func() {
+		d.pool.Save(args)
+	}()
+	_, args = d.toSlogArgs(ctx, args, h)
+	args = append(args, slog.Any("stack", debug.Stack()))
+	d.l.Error(fmt.Sprintf("Panic: %v", err), args...)
 }
 
 func (d *driver) Fatal(ctx context.Context, h logger.EventHandler) {

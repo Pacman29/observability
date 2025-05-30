@@ -64,3 +64,9 @@ func (ds drivers) Flush(timeout time.Duration) error {
 	}
 	return multierr.Combine(errs...)
 }
+
+func (ds drivers) Recover(err any, ctx context.Context, h logger.EventHandler) {
+	for _, d := range ds {
+		d.Recover(err, ctx, h)
+	}
+}

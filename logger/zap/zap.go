@@ -2,6 +2,8 @@ package zap
 
 import (
 	"context"
+	"fmt"
+	"runtime/debug"
 	"time"
 
 	"go.uber.org/zap"
@@ -61,6 +63,17 @@ func (d *driver) Error(ctx context.Context, h logger.EventHandler) {
 
 func (d *driver) Fatal(ctx context.Context, h logger.EventHandler) {
 	d.writeLog(ctx, d.l.Fatalw, h)
+}
+
+func (d *driver) Recover(err any, ctx context.Context, h logger.EventHandler) {
+	args := d.pool.Get()
+	defer func() {
+		d.pool.Save(args)
+	}()
+	args = d.toZapArgs(ctx, args, h)
+	args = append(args, zap.Any("stack", debug.Stack()))
+	d.l.Errorw(fmt.Sprintf("Panic: %v", err), args...)
+	_ = d.l.Sync()
 }
 
 func (d *driver) Flush(timeout time.Duration) error {
