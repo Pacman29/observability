@@ -36,8 +36,8 @@ func NewPrometheusDriver(registerer prometheus.Registerer, opts ...Option) metri
 	}
 }
 
-func (d *driver) Counter(ctx context.Context, handler metrics.EventHandler, key string, value float64) {
-	counter, labelNames, ok := d.counters.Get(key)
+func (d *driver) Counter(ctx context.Context, handler metrics.EventHandler[float64]) {
+	counter, labelNames, ok := d.counters.Get(handler.GetKey())
 
 	labelValues := d.labelsPool.Get()
 	defer d.labelsPool.Save(labelValues)
@@ -53,9 +53,9 @@ func (d *driver) Counter(ctx context.Context, handler metrics.EventHandler, key 
 		counter = prometheus.NewCounterVec(prometheus.CounterOpts{
 			Namespace: d.o.namespace,
 			Subsystem: d.o.subsystem,
-			Name:      key,
+			Name:      handler.GetKey(),
 		}, labelNames)
-		d.counters.Add(key, counter, labelNames)
+		d.counters.Add(handler.GetKey(), counter, labelNames)
 		d.registerer.MustRegister(counter)
 		d.labelsPool.Save(labelNames)
 	} else {
@@ -65,11 +65,11 @@ func (d *driver) Counter(ctx context.Context, handler metrics.EventHandler, key 
 		}
 	}
 
-	counter.WithLabelValues(labelValues...).Add(float64(value))
+	counter.WithLabelValues(labelValues...).Add(handler.GetValue())
 }
 
-func (d *driver) Increment(ctx context.Context, handler metrics.EventHandler, key string, value float64) {
-	counter, labelNames, ok := d.counters.Get(key)
+func (d *driver) Increment(ctx context.Context, handler metrics.EventHandler[float64]) {
+	counter, labelNames, ok := d.counters.Get(handler.GetKey())
 
 	labelValues := d.labelsPool.Get()
 	defer d.labelsPool.Save(labelValues)
@@ -85,9 +85,9 @@ func (d *driver) Increment(ctx context.Context, handler metrics.EventHandler, ke
 		counter = prometheus.NewCounterVec(prometheus.CounterOpts{
 			Namespace: d.o.namespace,
 			Subsystem: d.o.subsystem,
-			Name:      key,
+			Name:      handler.GetKey(),
 		}, labelNames)
-		d.counters.Add(key, counter, labelNames)
+		d.counters.Add(handler.GetKey(), counter, labelNames)
 		d.registerer.MustRegister(counter)
 		d.labelsPool.Save(labelNames)
 	} else {
@@ -97,11 +97,11 @@ func (d *driver) Increment(ctx context.Context, handler metrics.EventHandler, ke
 		}
 	}
 
-	counter.WithLabelValues(labelValues...).Add(float64(value))
+	counter.WithLabelValues(labelValues...).Add(handler.GetValue())
 }
 
-func (d *driver) Gauge(ctx context.Context, handler metrics.EventHandler, key string, value float64) {
-	gauger, labelNames, ok := d.gauge.Get(key)
+func (d *driver) Gauge(ctx context.Context, handler metrics.EventHandler[float64]) {
+	gauger, labelNames, ok := d.gauge.Get(handler.GetKey())
 
 	labelValues := d.labelsPool.Get()
 	defer d.labelsPool.Save(labelValues)
@@ -117,9 +117,9 @@ func (d *driver) Gauge(ctx context.Context, handler metrics.EventHandler, key st
 		gauger = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Namespace: d.o.namespace,
 			Subsystem: d.o.subsystem,
-			Name:      key,
+			Name:      handler.GetKey(),
 		}, labelNames)
-		d.gauge.Add(key, gauger, labelNames)
+		d.gauge.Add(handler.GetKey(), gauger, labelNames)
 		d.registerer.MustRegister(gauger)
 		d.labelsPool.Save(labelNames)
 	} else {
@@ -129,11 +129,11 @@ func (d *driver) Gauge(ctx context.Context, handler metrics.EventHandler, key st
 		}
 	}
 
-	gauger.WithLabelValues(labelValues...).Add(value)
+	gauger.WithLabelValues(labelValues...).Add(handler.GetValue())
 }
 
-func (d *driver) Histogram(ctx context.Context, handler metrics.EventHandler, key string, buckets []float64, value float64) {
-	histogrammer, labelNames, ok := d.histogram.Get(key)
+func (d *driver) Histogram(ctx context.Context, handler metrics.EventHandler[float64]) {
+	histogrammer, labelNames, ok := d.histogram.Get(handler.GetKey())
 
 	labelValues := d.labelsPool.Get()
 	defer d.labelsPool.Save(labelValues)
@@ -149,10 +149,10 @@ func (d *driver) Histogram(ctx context.Context, handler metrics.EventHandler, ke
 		histogrammer = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 			Namespace: d.o.namespace,
 			Subsystem: d.o.subsystem,
-			Name:      key,
-			Buckets:   buckets,
+			Name:      handler.GetKey(),
+			Buckets:   handler.GetBuckets(),
 		}, labelNames)
-		d.histogram.Add(key, histogrammer, labelNames)
+		d.histogram.Add(handler.GetKey(), histogrammer, labelNames)
 		d.registerer.MustRegister(histogrammer)
 		d.labelsPool.Save(labelNames)
 	} else {
@@ -162,15 +162,15 @@ func (d *driver) Histogram(ctx context.Context, handler metrics.EventHandler, ke
 		}
 	}
 
-	histogrammer.WithLabelValues(labelValues...).Observe(value)
+	histogrammer.WithLabelValues(labelValues...).Observe(handler.GetValue())
 }
 
-func (d *driver) Timing(ctx context.Context, handler metrics.EventHandler, key string, ms int) {
-	d.Histogram(ctx, handler, key, nil, float64(ms))
+func (d *driver) Timing(ctx context.Context, handler metrics.EventHandler[float64]) {
+	d.Histogram(ctx, handler)
 }
 
-func (d *driver) Duration(ctx context.Context, handler metrics.EventHandler, key string, v time.Duration) {
-	d.Histogram(ctx, handler, key, nil, float64(v.Milliseconds()))
+func (d *driver) Duration(ctx context.Context, handler metrics.EventHandler[float64]) {
+	d.Histogram(ctx, handler)
 }
 
 func (d *driver) Flush() {

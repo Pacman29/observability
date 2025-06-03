@@ -31,7 +31,7 @@ func main() {
 		}))
 
 	mux.HandleFunc("/count", func(writer http.ResponseWriter, request *http.Request) {
-		m.Counter(request.Context(), "test_metric", 10)
+		m.Counter(request.Context(), "test_metric", 10, metrics.WithTag("lol", "kek"))
 	})
 
 	server := &http.Server{Addr: "0.0.0.0:8080", Handler: mux}
