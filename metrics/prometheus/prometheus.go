@@ -42,8 +42,6 @@ func (d *driver) Counter(ctx context.Context, handler metrics.EventHandler) {
 	defer d.labelsPool.Save(labelValues)
 
 	if !ok {
-		labelNames = d.labelsPool.Get()
-
 		for k, v := range handler.Tags() {
 			labelValues = append(labelValues, v)
 			labelNames = append(labelNames, k)
@@ -56,7 +54,6 @@ func (d *driver) Counter(ctx context.Context, handler metrics.EventHandler) {
 		}, labelNames)
 		d.counters.Add(handler.GetKey(), counter, labelNames)
 		d.registerer.MustRegister(counter)
-		d.labelsPool.Save(labelNames)
 	} else {
 		m := handler.GetTags()
 		for _, v := range labelNames {
@@ -74,8 +71,6 @@ func (d *driver) Increment(ctx context.Context, handler metrics.EventHandler) {
 	defer d.labelsPool.Save(labelValues)
 
 	if !ok {
-		labelNames = d.labelsPool.Get()
-
 		for k, v := range handler.Tags() {
 			labelValues = append(labelValues, v)
 			labelNames = append(labelNames, k)
@@ -88,7 +83,6 @@ func (d *driver) Increment(ctx context.Context, handler metrics.EventHandler) {
 		}, labelNames)
 		d.counters.Add(handler.GetKey(), counter, labelNames)
 		d.registerer.MustRegister(counter)
-		d.labelsPool.Save(labelNames)
 	} else {
 		m := handler.GetTags()
 		for _, v := range labelNames {
@@ -106,8 +100,6 @@ func (d *driver) Gauge(ctx context.Context, handler metrics.EventHandler) {
 	defer d.labelsPool.Save(labelValues)
 
 	if !ok {
-		labelNames = d.labelsPool.Get()
-
 		for k, v := range handler.Tags() {
 			labelValues = append(labelValues, v)
 			labelNames = append(labelNames, k)
@@ -120,7 +112,6 @@ func (d *driver) Gauge(ctx context.Context, handler metrics.EventHandler) {
 		}, labelNames)
 		d.gauge.Add(handler.GetKey(), gauger, labelNames)
 		d.registerer.MustRegister(gauger)
-		d.labelsPool.Save(labelNames)
 	} else {
 		m := handler.GetTags()
 		for _, v := range labelNames {
@@ -138,8 +129,6 @@ func (d *driver) Histogram(ctx context.Context, handler metrics.EventHandler) {
 	defer d.labelsPool.Save(labelValues)
 
 	if !ok {
-		labelNames = d.labelsPool.Get()
-
 		for k, v := range handler.Tags() {
 			labelValues = append(labelValues, v)
 			labelNames = append(labelNames, k)
@@ -153,7 +142,6 @@ func (d *driver) Histogram(ctx context.Context, handler metrics.EventHandler) {
 		}, labelNames)
 		d.histogram.Add(handler.GetKey(), histogrammer, labelNames)
 		d.registerer.MustRegister(histogrammer)
-		d.labelsPool.Save(labelNames)
 	} else {
 		m := handler.GetTags()
 		for _, v := range labelNames {
