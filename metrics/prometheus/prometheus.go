@@ -35,7 +35,7 @@ func NewPrometheusDriver(registerer prometheus.Registerer, opts ...Option) metri
 	}
 }
 
-func (d *driver) Counter(ctx context.Context, handler metrics.EventHandler[float64]) {
+func (d *driver) Counter(ctx context.Context, handler metrics.EventHandler) {
 	counter, labelNames, ok := d.counters.Get(handler.GetKey())
 
 	labelValues := d.labelsPool.Get()
@@ -67,7 +67,7 @@ func (d *driver) Counter(ctx context.Context, handler metrics.EventHandler[float
 	counter.WithLabelValues(labelValues...).Add(handler.GetValue())
 }
 
-func (d *driver) Increment(ctx context.Context, handler metrics.EventHandler[float64]) {
+func (d *driver) Increment(ctx context.Context, handler metrics.EventHandler) {
 	counter, labelNames, ok := d.counters.Get(handler.GetKey())
 
 	labelValues := d.labelsPool.Get()
@@ -99,7 +99,7 @@ func (d *driver) Increment(ctx context.Context, handler metrics.EventHandler[flo
 	counter.WithLabelValues(labelValues...).Add(handler.GetValue())
 }
 
-func (d *driver) Gauge(ctx context.Context, handler metrics.EventHandler[float64]) {
+func (d *driver) Gauge(ctx context.Context, handler metrics.EventHandler) {
 	gauger, labelNames, ok := d.gauge.Get(handler.GetKey())
 
 	labelValues := d.labelsPool.Get()
@@ -131,7 +131,7 @@ func (d *driver) Gauge(ctx context.Context, handler metrics.EventHandler[float64
 	gauger.WithLabelValues(labelValues...).Add(handler.GetValue())
 }
 
-func (d *driver) Histogram(ctx context.Context, handler metrics.EventHandler[float64]) {
+func (d *driver) Histogram(ctx context.Context, handler metrics.EventHandler) {
 	histogrammer, labelNames, ok := d.histogram.Get(handler.GetKey())
 
 	labelValues := d.labelsPool.Get()
@@ -164,11 +164,11 @@ func (d *driver) Histogram(ctx context.Context, handler metrics.EventHandler[flo
 	histogrammer.WithLabelValues(labelValues...).Observe(handler.GetValue())
 }
 
-func (d *driver) Timing(ctx context.Context, handler metrics.EventHandler[float64]) {
+func (d *driver) Timing(ctx context.Context, handler metrics.EventHandler) {
 	d.Histogram(ctx, handler)
 }
 
-func (d *driver) Duration(ctx context.Context, handler metrics.EventHandler[float64]) {
+func (d *driver) Duration(ctx context.Context, handler metrics.EventHandler) {
 	d.Histogram(ctx, handler)
 }
 

@@ -7,12 +7,12 @@ import (
 )
 
 type Driver interface {
-	Counter(ctx context.Context, handler EventHandler[float64])
-	Increment(ctx context.Context, handler EventHandler[float64])
-	Gauge(ctx context.Context, handler EventHandler[float64])
-	Histogram(ctx context.Context, handler EventHandler[float64])
-	Timing(ctx context.Context, handler EventHandler[float64])
-	Duration(ctx context.Context, handler EventHandler[float64])
+	Counter(ctx context.Context, handler EventHandler)
+	Increment(ctx context.Context, handler EventHandler)
+	Gauge(ctx context.Context, handler EventHandler)
+	Histogram(ctx context.Context, handler EventHandler)
+	Timing(ctx context.Context, handler EventHandler)
+	Duration(ctx context.Context, handler EventHandler)
 	Flush()
 	Close()
 }
@@ -33,10 +33,10 @@ type Metrics interface {
 	Close()
 }
 
-type EventHandler[T any] interface {
+type EventHandler interface {
 	Tags() iter.Seq2[string, string]
 	GetBuckets() []float64
 	GetTags() map[string]string
-	GetValue() T
+	GetValue() float64
 	GetKey() string
 }
